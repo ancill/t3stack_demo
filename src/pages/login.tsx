@@ -5,6 +5,20 @@ import { useForm } from 'react-hook-form'
 import { CreateUserInput } from '../schema/user.schema'
 import { trpc } from '../utils/trpc'
 
+function VerifyToken({ hash }: { hash: string }) {
+	const router = useRouter()
+	const { data, isLoading } = trpc.useQuery(['user.verify-otp', {
+		hash
+	}])
+
+	if (isLoading) {
+		return <p>Verifying...</p>
+	}
+
+	router.push(data?.redirect.includes('login') ? '/' : data?.redirect || '/')
+
+	return <p>Verifying...</p>
+}
 
 function RegisterPage() {
 	const { handleSubmit, register } = useForm<CreateUserInput>()
@@ -20,6 +34,14 @@ function RegisterPage() {
 	function onSubmit(values: CreateUserInput) {
 		mutate(values)
 	}
+
+	// take path from url
+	const hash = router.asPath.split('#token=')[1]
+
+	if (hash) {
+		return <VerifyToken />
+	}
+
 
 	return <>
 		<div className="w-full max-w-xs">
