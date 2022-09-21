@@ -17,8 +17,8 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   }
 
   return <UserContextProvider value={data}>
-    <main>
-      <Component {...pageProps} />;
+    <main className="py-6 px-4 sm:p-6 md:py-10 md:px-8 lg:py-12 lg:px-14">
+      <Component {...pageProps} />
     </main>
   </UserContextProvider>
 };
