@@ -4,11 +4,23 @@ import { loggerLink } from "@trpc/client/links/loggerLink";
 import { withTRPC } from "@trpc/next";
 import type { AppType } from "next/dist/shared/lib/utils";
 import superjson from "superjson";
-import type { AppRouter } from "../server/router";
+import { UserContextProvider } from '../context/user.context';
+import type { AppRouter } from "../server/createRouter";
 import "../styles/globals.css";
+import { trpc } from '../utils/trpc';
 
 const MyApp: AppType = ({ Component, pageProps }) => {
-  return <Component {...pageProps} />;
+  const { data, error, isLoading } = trpc.useQuery(['user.me'])
+
+  if (isLoading) {
+    return <>Loading user...</>
+  }
+
+  return <UserContextProvider value={data}>
+    <main>
+      <Component {...pageProps} />;
+    </main>
+  </UserContextProvider>
 };
 
 export const getBaseUrl = () => {

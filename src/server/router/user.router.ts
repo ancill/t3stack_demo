@@ -12,7 +12,7 @@ import { decode, encode } from '../../utils/base64'
 import { signJwt } from '../../utils/jwt'
 import { sendLoginEmail } from '../../utils/mailer'
 
-import { createRouter } from './context'
+import { createRouter } from '../createContext'
 
 export const userRouter = createRouter()
   .mutation('register-user', {
@@ -86,7 +86,8 @@ export const userRouter = createRouter()
   .query('verify-otp', {
     input: verifyOtpSchema,
     async resolve({ input, ctx }) {
-      const decoded = decode(input.hash).split('')
+      const decoded = decode(input.hash).split(':')
+
       const [id, email] = decoded
 
       const token = await ctx.prisma.loginToken.findFirst({
@@ -113,13 +114,15 @@ export const userRouter = createRouter()
         id: token.user.id,
       })
 
-      ctx.opts.res.setHeader(
-        'Set-Cookie',
-        serialize('token', jwt, { path: '/' })
-      )
+      ctx.res.setHeader('Set-Cookie', serialize('token', jwt, { path: '/' }))
 
       return {
         redirect: token.redirect,
       }
+    },
+  })
+  .query('me', {
+    resolve({ ctx }) {
+      return ctx.user
     },
   })
